@@ -1,0 +1,645 @@
+{
+  "medicines": [
+    {
+      "id": "m1",
+      "name": "Paracetamol 500mg",
+      "category": "Analgesics",
+      "batchNumber": "PR-2026-01",
+      "stock": 1200,
+      "minStock": 300,
+      "expiryDate": "2027-04-15",
+      "usageRatePerDay": 45,
+      "unit": "Tablets",
+      "phcId": "phc_1"
+    },
+    {
+      "id": "m2",
+      "name": "Amoxicillin 250mg",
+      "category": "Antibiotics",
+      "batchNumber": "AM-2026-03",
+      "stock": 550,
+      "minStock": 200,
+      "expiryDate": "2026-10-30",
+      "usageRatePerDay": 25,
+      "unit": "Capsules",
+      "phcId": "phc_1"
+    },
+    {
+      "id": "m3",
+      "name": "Metformin 500mg",
+      "category": "Antidiabetics",
+      "batchNumber": "MF-2025-09",
+      "stock": 850,
+      "minStock": 150,
+      "expiryDate": "2026-08-10",
+      "usageRatePerDay": 30,
+      "unit": "Tablets",
+      "phcId": "phc_1"
+    },
+    {
+      "id": "m4",
+      "name": "Amlodipine 5mg",
+      "category": "Antihypertensives",
+      "batchNumber": "AL-2026-02",
+      "stock": 900,
+      "minStock": 200,
+      "expiryDate": "2027-12-01",
+      "usageRatePerDay": 20,
+      "unit": "Tablets",
+      "phcId": "phc_1"
+    },
+    {
+      "id": "m5",
+      "name": "Cetirizine 10mg",
+      "category": "Antihistamines",
+      "batchNumber": "CT-2026-04",
+      "stock": 45,
+      "minStock": 100,
+      "expiryDate": "2027-03-22",
+      "usageRatePerDay": 15,
+      "unit": "Tablets",
+      "phcId": "phc_1"
+    },
+    {
+      "id": "m6",
+      "name": "ORS Packets",
+      "category": "Rehydration",
+      "batchNumber": "OR-2026-05",
+      "stock": 600,
+      "minStock": 150,
+      "expiryDate": "2028-01-15",
+      "usageRatePerDay": 40,
+      "unit": "Sachets",
+      "phcId": "phc_1"
+    },
+    {
+      "id": "m7",
+      "name": "Atorvastatin 10mg",
+      "category": "Cardiovascular",
+      "batchNumber": "AT-2026-07",
+      "stock": 400,
+      "minStock": 100,
+      "expiryDate": "2027-11-18",
+      "usageRatePerDay": 12,
+      "unit": "Tablets",
+      "phcId": "phc_1"
+    },
+    {
+      "id": "m8",
+      "name": "Paracetamol 500mg",
+      "category": "Analgesics",
+      "batchNumber": "PR-2026-02",
+      "stock": 2500,
+      "minStock": 500,
+      "expiryDate": "2027-06-20",
+      "usageRatePerDay": 80,
+      "unit": "Tablets",
+      "phcId": "phc_2"
+    },
+    {
+      "id": "m9",
+      "name": "Amoxicillin 250mg",
+      "category": "Antibiotics",
+      "batchNumber": "AM-2026-04",
+      "stock": 1000,
+      "minStock": 300,
+      "expiryDate": "2026-11-15",
+      "usageRatePerDay": 35,
+      "unit": "Capsules",
+      "phcId": "phc_2"
+    },
+    {
+      "id": "m10",
+      "name": "Cetirizine 10mg",
+      "category": "Antihistamines",
+      "batchNumber": "CT-2026-06",
+      "stock": 1200,
+      "minStock": 150,
+      "expiryDate": "2027-05-10",
+      "usageRatePerDay": 20,
+      "unit": "Tablets",
+      "phcId": "phc_2"
+    },
+    {
+      "id": "m11",
+      "name": "Ibuprofen 400mg",
+      "category": "Analgesics",
+      "batchNumber": "IB-2026-08",
+      "stock": 1500,
+      "minStock": 250,
+      "expiryDate": "2027-09-05",
+      "usageRatePerDay": 50,
+      "unit": "Tablets",
+      "phcId": "phc_2"
+    },
+    {
+      "id": "m12",
+      "name": "Paracetamol 500mg",
+      "category": "Analgesics",
+      "batchNumber": "PR-2026-03",
+      "stock": 500,
+      "minStock": 200,
+      "expiryDate": "2027-03-10",
+      "usageRatePerDay": 30,
+      "unit": "Tablets",
+      "phcId": "phc_3"
+    },
+    {
+      "id": "m13",
+      "name": "Amoxicillin 250mg",
+      "category": "Antibiotics",
+      "batchNumber": "AM-2026-05",
+      "stock": 80,
+      "minStock": 150,
+      "expiryDate": "2026-12-01",
+      "usageRatePerDay": 15,
+      "unit": "Capsules",
+      "phcId": "phc_3"
+    }
+  ],
+  "beds": [
+    {
+      "id": "bed_1_1",
+      "type": "ICU",
+      "status": "Available",
+      "phcId": "phc_1"
+    },
+    {
+      "id": "bed_1_2",
+      "type": "ICU",
+      "status": "Occupied",
+      "phcId": "phc_1",
+      "patientId": "p1",
+      "patientName": "Ramesh Kumar",
+      "admittedDate": "2026-06-27"
+    },
+    {
+      "id": "bed_1_3",
+      "type": "General",
+      "status": "Occupied",
+      "phcId": "phc_1",
+      "patientId": "p1",
+      "patientName": "Ramesh Kumar",
+      "admittedDate": "2026-06-27"
+    },
+    {
+      "id": "bed_1_4",
+      "type": "General",
+      "status": "Occupied",
+      "phcId": "phc_1",
+      "patientId": "p1",
+      "patientName": "Ramesh Kumar",
+      "admittedDate": "2026-06-27"
+    },
+    {
+      "id": "bed_1_5",
+      "type": "General",
+      "status": "Available",
+      "phcId": "phc_1"
+    },
+    {
+      "id": "bed_1_6",
+      "type": "General",
+      "status": "Available",
+      "phcId": "phc_1"
+    },
+    {
+      "id": "bed_2_1",
+      "type": "ICU",
+      "status": "Occupied",
+      "patientId": "p4",
+      "patientName": "Meera Nair",
+      "admittedDate": "2026-06-23",
+      "phcId": "phc_2"
+    },
+    {
+      "id": "bed_2_2",
+      "type": "ICU",
+      "status": "Occupied",
+      "patientId": "p5",
+      "patientName": "Vikram Singh",
+      "admittedDate": "2026-06-25",
+      "phcId": "phc_2"
+    },
+    {
+      "id": "bed_2_3",
+      "type": "ICU",
+      "status": "Available",
+      "phcId": "phc_2"
+    },
+    {
+      "id": "bed_2_4",
+      "type": "General",
+      "status": "Occupied",
+      "phcId": "phc_2"
+    },
+    {
+      "id": "bed_2_5",
+      "type": "General",
+      "status": "Occupied",
+      "phcId": "phc_2"
+    },
+    {
+      "id": "bed_2_6",
+      "type": "General",
+      "status": "Available",
+      "phcId": "phc_2"
+    },
+    {
+      "id": "bed_2_7",
+      "type": "General",
+      "status": "Available",
+      "phcId": "phc_2"
+    },
+    {
+      "id": "bed_2_8",
+      "type": "General",
+      "status": "Available",
+      "phcId": "phc_2"
+    },
+    {
+      "id": "bed_3_1",
+      "type": "ICU",
+      "status": "Occupied",
+      "patientId": "p6",
+      "patientName": "George Kurian",
+      "admittedDate": "2026-06-26",
+      "phcId": "phc_3"
+    },
+    {
+      "id": "bed_3_2",
+      "type": "General",
+      "status": "Available",
+      "phcId": "phc_3"
+    },
+    {
+      "id": "bed_3_3",
+      "type": "General",
+      "status": "Available",
+      "phcId": "phc_3"
+    }
+  ],
+  "doctors": [
+    {
+      "id": "doc_1",
+      "name": "Dr. Aarav Mehta",
+      "department": "General Medicine",
+      "status": "Active",
+      "shift": "Morning",
+      "contact": "+91 98765 43210",
+      "attendance": [
+        {
+          "date": "2026-06-23",
+          "present": true
+        },
+        {
+          "date": "2026-06-24",
+          "present": true
+        },
+        {
+          "date": "2026-06-25",
+          "present": true
+        },
+        {
+          "date": "2026-06-26",
+          "present": true
+        },
+        {
+          "date": "2026-06-27",
+          "present": true
+        }
+      ],
+      "phcId": "phc_1"
+    },
+    {
+      "id": "doc_2",
+      "name": "Dr. Priya Sharma",
+      "department": "Pediatrics",
+      "status": "Active",
+      "shift": "Evening",
+      "contact": "+91 98765 43211",
+      "attendance": [
+        {
+          "date": "2026-06-23",
+          "present": true
+        },
+        {
+          "date": "2026-06-24",
+          "present": true
+        },
+        {
+          "date": "2026-06-25",
+          "present": false
+        },
+        {
+          "date": "2026-06-26",
+          "present": true
+        },
+        {
+          "date": "2026-06-27",
+          "present": true
+        }
+      ],
+      "phcId": "phc_1"
+    },
+    {
+      "id": "doc_3",
+      "name": "Dr. Vivek Hegde",
+      "department": "Cardiology",
+      "status": "Off Duty",
+      "shift": "Night",
+      "contact": "+91 98765 43212",
+      "attendance": [
+        {
+          "date": "2026-06-23",
+          "present": true
+        },
+        {
+          "date": "2026-06-24",
+          "present": true
+        },
+        {
+          "date": "2026-06-25",
+          "present": true
+        },
+        {
+          "date": "2026-06-26",
+          "present": true
+        },
+        {
+          "date": "2026-06-27",
+          "present": true
+        }
+      ],
+      "phcId": "phc_1"
+    },
+    {
+      "id": "doc_4",
+      "name": "Dr. Sneha Gowda",
+      "department": "Gynecology",
+      "status": "Active",
+      "shift": "Morning",
+      "contact": "+91 98765 43213",
+      "attendance": [
+        {
+          "date": "2026-06-23",
+          "present": true
+        },
+        {
+          "date": "2026-06-24",
+          "present": true
+        },
+        {
+          "date": "2026-06-25",
+          "present": true
+        },
+        {
+          "date": "2026-06-26",
+          "present": true
+        },
+        {
+          "date": "2026-06-27",
+          "present": true
+        }
+      ],
+      "phcId": "phc_2"
+    },
+    {
+      "id": "doc_5",
+      "name": "Dr. Rajesh Deshmukh",
+      "department": "General Surgery",
+      "status": "On Leave",
+      "shift": "Evening",
+      "contact": "+91 98765 43214",
+      "attendance": [
+        {
+          "date": "2026-06-23",
+          "present": true
+        },
+        {
+          "date": "2026-06-24",
+          "present": false
+        },
+        {
+          "date": "2026-06-25",
+          "present": false
+        },
+        {
+          "date": "2026-06-26",
+          "present": false
+        },
+        {
+          "date": "2026-06-27",
+          "present": false
+        }
+      ],
+      "phcId": "phc_2"
+    },
+    {
+      "id": "doc_6",
+      "name": "Dr. Kavitha Reddy",
+      "department": "General Medicine",
+      "status": "Active",
+      "shift": "Morning",
+      "contact": "+91 98765 43215",
+      "attendance": [
+        {
+          "date": "2026-06-23",
+          "present": true
+        },
+        {
+          "date": "2026-06-24",
+          "present": true
+        },
+        {
+          "date": "2026-06-25",
+          "present": true
+        },
+        {
+          "date": "2026-06-26",
+          "present": true
+        },
+        {
+          "date": "2026-06-27",
+          "present": true
+        }
+      ],
+      "phcId": "phc_3"
+    },
+    {
+      "name": "Akash",
+      "department": "General Surgery",
+      "status": "Active",
+      "shift": "Morning",
+      "contact": "2891",
+      "phcId": "phc_1",
+      "id": "doc_w4m8qm6dl",
+      "attendance": [
+        {
+          "date": "2026-06-27",
+          "present": false
+        }
+      ]
+    }
+  ],
+  "patients": [
+    {
+      "id": "p1",
+      "name": "Ramesh Kumar",
+      "age": 42,
+      "gender": "Male",
+      "contact": "+91 91234 56780",
+      "bloodGroup": "O+",
+      "history": [
+        {
+          "id": "h1",
+          "date": "2026-05-12",
+          "diagnosis": "Severe Hypertension",
+          "treatment": "Amlodipine 5mg once daily",
+          "doctorName": "Dr. Aarav Mehta"
+        },
+        {
+          "id": "h2",
+          "date": "2026-06-24",
+          "diagnosis": "Chest Congestion & Asthma Exacerbation",
+          "treatment": "Nebulization & general ward admission",
+          "doctorName": "Dr. Aarav Mehta"
+        }
+      ],
+      "appointments": [
+        {
+          "id": "ap1",
+          "date": "2026-06-24",
+          "time": "10:00 AM",
+          "doctorId": "doc_1",
+          "doctorName": "Dr. Aarav Mehta",
+          "status": "Completed"
+        },
+        {
+          "id": "ap2",
+          "date": "2026-07-01",
+          "time": "11:00 AM",
+          "doctorId": "doc_1",
+          "doctorName": "Dr. Aarav Mehta",
+          "status": "Scheduled"
+        }
+      ],
+      "registrationDate": "2026-05-12",
+      "phcId": "phc_1"
+    },
+    {
+      "id": "p2",
+      "name": "Sunitha Rao",
+      "age": 35,
+      "gender": "Female",
+      "contact": "+91 91234 56781",
+      "bloodGroup": "A+",
+      "history": [
+        {
+          "id": "h3",
+          "date": "2026-06-10",
+          "diagnosis": "Type 2 Diabetes",
+          "treatment": "Metformin 500mg twice daily",
+          "doctorName": "Dr. Aarav Mehta"
+        },
+        {
+          "id": "h4",
+          "date": "2026-06-25",
+          "diagnosis": "Acute Gastroenteritis",
+          "treatment": "ORS therapy & hydration IV support",
+          "doctorName": "Dr. Aarav Mehta"
+        }
+      ],
+      "appointments": [
+        {
+          "id": "ap3",
+          "date": "2026-06-25",
+          "time": "02:30 PM",
+          "doctorId": "doc_1",
+          "doctorName": "Dr. Aarav Mehta",
+          "status": "Completed"
+        }
+      ],
+      "registrationDate": "2026-06-10",
+      "phcId": "phc_1"
+    },
+    {
+      "id": "p3",
+      "name": "Anil Deshmukh",
+      "age": 64,
+      "gender": "Male",
+      "contact": "+91 91234 56782",
+      "bloodGroup": "B-",
+      "history": [
+        {
+          "id": "h5",
+          "date": "2026-06-26",
+          "diagnosis": "Influenza Type A",
+          "treatment": "Antivirals, paracetamol and general isolation admission",
+          "doctorName": "Dr. Priya Sharma"
+        }
+      ],
+      "appointments": [
+        {
+          "id": "ap4",
+          "date": "2026-06-26",
+          "time": "11:15 AM",
+          "doctorId": "doc_2",
+          "doctorName": "Dr. Priya Sharma",
+          "status": "Completed"
+        }
+      ],
+      "registrationDate": "2026-06-26",
+      "phcId": "phc_1"
+    },
+    {
+      "id": "p4",
+      "name": "Meera Nair",
+      "age": 28,
+      "gender": "Female",
+      "contact": "+91 91234 56783",
+      "bloodGroup": "O-",
+      "history": [
+        {
+          "id": "h6",
+          "date": "2026-06-23",
+          "diagnosis": "Pregnancy Routine Checkup",
+          "treatment": "Folic acid & iron supplements",
+          "doctorName": "Dr. Sneha Gowda"
+        }
+      ],
+      "appointments": [
+        {
+          "id": "ap5",
+          "date": "2026-06-23",
+          "time": "09:00 AM",
+          "doctorId": "doc_4",
+          "doctorName": "Dr. Sneha Gowda",
+          "status": "Completed"
+        },
+        {
+          "id": "ap6",
+          "date": "2026-07-20",
+          "time": "09:00 AM",
+          "doctorId": "doc_4",
+          "doctorName": "Dr. Sneha Gowda",
+          "status": "Scheduled"
+        }
+      ],
+      "registrationDate": "2026-06-23",
+      "phcId": "phc_2"
+    },
+    {
+      "id": "pat_wkxoks5j1",
+      "name": "Shanthi",
+      "age": 30,
+      "gender": "Male",
+      "contact": "922",
+      "bloodGroup": "O+",
+      "history": [],
+      "appointments": [],
+      "registrationDate": "2026-06-27",
+      "phcId": "phc_1"
+    }
+  ]
+}
