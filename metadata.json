@@ -1,0 +1,6 @@
+{
+  "name": "HealthSync AI",
+  "description": "AI-Driven Health Center & Supply Chain Management with Google Gemini integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
