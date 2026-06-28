@@ -203,7 +203,7 @@ Add screenshots here:
 
 Akash Nayak
 
-B.Tech – Electrical & Electronics Engineering
+B.Tech – Electrical & Electronics and minor in computer science  Engineering
 
 NMAM Institute of Technology
 
