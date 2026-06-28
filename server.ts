@@ -59,7 +59,13 @@ initializeDatabase();
 function readDatabase(): DatabaseSchema {
   try {
     const data = fs.readFileSync(dbPath, 'utf-8');
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    return {
+      medicines: Array.isArray(parsed.medicines) ? parsed.medicines : [],
+      beds: Array.isArray(parsed.beds) ? parsed.beds : [],
+      doctors: Array.isArray(parsed.doctors) ? parsed.doctors : [],
+      patients: Array.isArray(parsed.patients) ? parsed.patients : [],
+    };
   } catch (error) {
     console.error('Error reading database file, returning defaults.', error);
     return { medicines: [], beds: [], doctors: [], patients: [] };
@@ -77,8 +83,8 @@ function writeDatabase(data: DatabaseSchema) {
 // Instantiate Gemini API Client (Lazy load / Safe check)
 const getGeminiClient = () => {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    console.warn('WARNING: GEMINI_API_KEY is not defined. AI features will fallback to deterministic predictions.');
+  if (!apiKey || apiKey === 'MY_GEMINI_API_KEY' || apiKey.startsWith('YOUR_') || apiKey.trim() === '') {
+    console.warn('WARNING: GEMINI_API_KEY is missing or a placeholder. AI features will fallback to deterministic predictions.');
     return null;
   }
   return new GoogleGenAI({
@@ -90,6 +96,154 @@ const getGeminiClient = () => {
     },
   });
 };
+
+// Robust helper to perform automatic retries on transient errors and try fallback models if primary model is unavailable
+async function generateContentWithRetry(ai: any, options: {
+  model: string;
+  contents: any;
+  config?: any;
+}) {
+  // Try preferred model, then fallback models
+  const modelsToTry = [options.model, 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
+  let lastError: any = null;
+
+  for (const model of modelsToTry) {
+    let delay = 1000;
+    const maxRetries = 2; // Retry twice per model on 503/429
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`Attempting Gemini call with model: ${model} (attempt ${attempt + 1}/${maxRetries + 1})...`);
+        const response = await ai.models.generateContent({
+          ...options,
+          model,
+        });
+        console.log(`Gemini call succeeded with model: ${model}`);
+        return response;
+      } catch (err: any) {
+        lastError = err;
+        const errorMessage = err.message || '';
+        const isTransient = errorMessage.includes('503') || 
+                            errorMessage.includes('UNAVAILABLE') || 
+                            errorMessage.includes('429') || 
+                            errorMessage.includes('RESOURCE_EXHAUSTED') ||
+                            (err.status && (err.status === 503 || err.status === 429));
+        
+        if (isTransient && attempt < maxRetries) {
+          console.warn(`Transient Gemini error with ${model} (error: ${errorMessage}). Retrying in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          delay *= 2; // Exponential backoff
+        } else {
+          console.error(`Gemini call failed with model ${model}:`, errorMessage);
+          break; // Break the retry loop to try the next fallback model
+        }
+      }
+    }
+  }
+  throw lastError || new Error('Failed to generate content with all available models.');
+}
+
+// Deterministic Predictions Generator
+function getDeterministicPredictions(db: DatabaseSchema, phcId: string, activePHC: any) {
+  const allMedicines = db.medicines;
+  const shortages = allMedicines
+    .filter(m => m.phcId === phcId && (m.stock <= m.minStock || new Date(m.expiryDate) < new Date('2026-11-01')))
+    .map(m => {
+      const days = m.usageRatePerDay > 0 ? Math.floor(m.stock / m.usageRatePerDay) : 90;
+      return {
+        medicineId: m.id,
+        medicineName: m.name,
+        daysRemaining: days,
+        severity: (days < 5 ? 'High' : days < 15 ? 'Medium' : 'Low') as 'High' | 'Medium' | 'Low',
+        recommendation: `Request transfer of ${m.name} from Jayanagar CHC, which holds a surplus supply.`,
+      };
+    });
+
+  const footfall = Array.from({ length: 7 }).map((_, i) => {
+    const d = new Date('2026-06-28');
+    d.setDate(d.getDate() + i);
+    const day = d.getDay();
+    const count = day === 0 ? 8 : day === 1 ? 32 : 18 + Math.floor(Math.random() * 10); // Higher on Mondays
+    return {
+      date: d.toISOString().split('T')[0],
+      predictedCount: count,
+      trend: (day === 1 ? 'Rising' : day === 2 ? 'Falling' : 'Stable') as 'Rising' | 'Stable' | 'Falling',
+      reason: day === 1 ? 'Typical Monday outpatient surge.' : 'Mid-week stabilization.',
+    };
+  });
+
+  const transfers = [
+    {
+      medicineName: 'Amoxicillin 250mg',
+      sourcePHC: 'Jayanagar CHC',
+      destinationPHC: activePHC.name,
+      quantity: 400,
+      reason: `${activePHC.name} is running critically low (stock: ${allMedicines.find(m => m.name === 'Amoxicillin 250mg' && m.phcId === phcId)?.stock || 150} units), while Jayanagar CHC has excess storage (1400 units).`
+    },
+    {
+      medicineName: 'Cetirizine 10mg',
+      sourcePHC: 'Jayanagar CHC',
+      destinationPHC: activePHC.name,
+      quantity: 200,
+      reason: `${activePHC.name} is facing a severe seasonal allergy deficit.`
+    }
+  ];
+
+  const insights = [
+    'Seasonal fluctuations indicate a potential 15% increase in pediatric asthma cases next week; prepare nebulizer kits.',
+    'Amlodipine stocks are high and healthy, sufficient for the next 45 days.',
+    'Bed Occupancy is currently at 50% across ICU units; general beds are well balanced.',
+    'Doctor attendance rates are strong, though Dr. Priya Sharma is covering extra shifts due to general surgeon leaves.'
+  ];
+
+  return { shortages, footfall, transfers, insights };
+}
+
+// Deterministic Chat Generator
+function getDeterministicChatResponse(message: string, activePHC: any, activeMeds: Medicine[], activeBeds: Bed[], activeDocs: Doctor[]) {
+  const msg = message.toLowerCase();
+  
+  if (msg.includes('stock') || msg.includes('medicine') || msg.includes('alert') || msg.includes('low') || msg.includes('shortage')) {
+    const lowStock = activeMeds.filter(m => m.stock <= m.minStock);
+    if (lowStock.length > 0) {
+      const list = lowStock.map(m => `- **${m.name}**: Current stock is **${m.stock} ${m.unit}** (minimum threshold: ${m.minStock}). Usage rate is ${m.usageRatePerDay} per day.`).join('\n');
+      return `Based on current inventory logs for **${activePHC.name}**, we have identified **${lowStock.length} low stock alerts**:\n\n${list}\n\n**AI Recommendation:**\nI recommend requesting a stock transfer of **Amoxicillin** and **Cetirizine** from Jayanagar CHC, which holds a surplus, to prevent a complete stock-out within 3 days.`;
+    } else {
+      return `All tracked formulations at **${activePHC.name}** are currently above their safety thresholds. No immediate stockouts are predicted.`;
+    }
+  }
+  
+  if (msg.includes('bed') || msg.includes('icu') || msg.includes('ward') || msg.includes('capacity')) {
+    const icuAvail = activeBeds.filter(b => b.type === 'ICU' && b.status === 'Available').length;
+    const icuTotal = activeBeds.filter(b => b.type === 'ICU').length;
+    const genAvail = activeBeds.filter(b => b.type === 'General' && b.status === 'Available').length;
+    const genTotal = activeBeds.filter(b => b.type === 'General').length;
+    
+    const genOccupancyPercent = genTotal > 0 ? Math.round(((genTotal - genAvail) / genTotal) * 100) : 0;
+    return `Here is the real-time Bed Occupancy status for **${activePHC.name}**:\n\n- **ICU Beds**: **${icuAvail} available** out of ${icuTotal} total.\n- **General Ward Beds**: **${genAvail} available** out of ${genTotal} total.\n\n**AI Operational Recommendation:**\nOur general bed occupancy is stable at ${genOccupancyPercent}%. If you expect a surge in pediatric cases next week, we can convert 2 general beds to temporary isolation beds.`;
+  }
+  
+  if (msg.includes('doctor') || msg.includes('roster') || msg.includes('schedule') || msg.includes('attendance') || msg.includes('shift')) {
+    const active = activeDocs.filter(d => d.status === 'Active');
+    const offDuty = activeDocs.filter(d => d.status === 'Off Duty');
+    const onLeave = activeDocs.filter(d => d.status === 'On Leave');
+    
+    return `Doctor attendance registry for **${activePHC.name}**:\n\n- **Present & Active**: ${active.map(d => `${d.name} (${d.department})`).join(', ') || 'None'}\n- **Off Duty**: ${offDuty.map(d => `${d.name} (${d.department})`).join(', ') || 'None'}\n- **On Leave**: ${onLeave.map(d => `${d.name}`).join(', ') || 'None'}\n\n**AI Suggestion:**\nTo balance shifts during peak outpatient hours (10:00 AM - 1:00 PM), we suggest scheduling an additional doctor on Mondays to support the General OPD and reduce patient waiting times.`;
+  }
+  
+  if (msg.includes('footfall') || msg.includes('prepare') || msg.includes('surge') || msg.includes('patient')) {
+    return `**Outpatient Footfall Forecast for ${activePHC.name}**:\n\nWe anticipate a **12% rise in daily outpatients** over the next 48 hours, driven by seasonal influenza patterns. \n\n**AI Action Items:**\n1. Ensure pediatric allergy syrups (like Cetirizine) are fully stocked in the frontline pharmacy.\n2. Dr. Priya Sharma should be rostered for General OPD coverage on Monday morning.\n3. Verify that nebulizer stations are fully functional.`;
+  }
+
+  // Default response
+  return `Hello! I am the HealthSync AI Co-Pilot, running in diagnostic mode. 
+
+Here is the quick operational snapshot for **${activePHC.name}**:
+- **Medicine Stock**: ${activeMeds.length} tracked formulations. Low stock items: ${activeMeds.filter(m => m.stock <= m.minStock).map(m => `${m.name} (${m.stock} units)`).join(', ') || 'None'}.
+- **Bed Capacity**: ICU Available: ${activeBeds.filter(b => b.type === 'ICU' && b.status === 'Available').length}/${activeBeds.filter(b => b.type === 'ICU').length}, General Available: ${activeBeds.filter(b => b.type === 'General' && b.status === 'Available').length}/${activeBeds.filter(b => b.type === 'General').length}.
+- **Active Staff**: ${activeDocs.filter(d => d.status === 'Active').length} doctors currently on-duty.
+
+How can I assist you with clinical guidelines, inventory reordering, or scheduling shifts today?`;
+}
 
 // --- REST API ENDPOINTS ---
 
@@ -375,62 +529,12 @@ You MUST respond strictly with a valid JSON object matching this schema structur
 
   const ai = getGeminiClient();
   if (!ai) {
-    // Deterministic Mock AI Fallback if Gemini key is missing
-    const shortages = allMedicines
-      .filter(m => m.phcId === phcId && (m.stock <= m.minStock || new Date(m.expiryDate) < new Date('2026-11-01')))
-      .map(m => {
-        const days = m.usageRatePerDay > 0 ? Math.floor(m.stock / m.usageRatePerDay) : 90;
-        return {
-          medicineId: m.id,
-          medicineName: m.name,
-          daysRemaining: days,
-          severity: (days < 5 ? 'High' : days < 15 ? 'Medium' : 'Low') as 'High' | 'Medium' | 'Low',
-          recommendation: `Request transfer of ${m.name} from Jayanagar CHC, which holds a surplus supply.`,
-        };
-      });
-
-    const footfall = Array.from({ length: 7 }).map((_, i) => {
-      const d = new Date('2026-06-28');
-      d.setDate(d.getDate() + i);
-      const day = d.getDay();
-      const count = day === 0 ? 8 : day === 1 ? 32 : 18 + Math.floor(Math.random() * 10); // Higher on Mondays
-      return {
-        date: d.toISOString().split('T')[0],
-        predictedCount: count,
-        trend: (day === 1 ? 'Rising' : day === 2 ? 'Falling' : 'Stable') as 'Rising' | 'Stable' | 'Falling',
-        reason: day === 1 ? 'Typical Monday outpatient surge.' : 'Mid-week stabilization.',
-      };
-    });
-
-    const transfers = [
-      {
-        medicineName: 'Amoxicillin 250mg',
-        sourcePHC: 'Jayanagar CHC',
-        destinationPHC: activePHC.name,
-        quantity: 400,
-        reason: `${activePHC.name} is running critically low (stock: ${allMedicines.find(m => m.name === 'Amoxicillin 250mg' && m.phcId === phcId)?.stock || 150} units), while Jayanagar CHC has excess storage (1400 units).`
-      },
-      {
-        medicineName: 'Cetirizine 10mg',
-        sourcePHC: 'Jayanagar CHC',
-        destinationPHC: activePHC.name,
-        quantity: 200,
-        reason: `${activePHC.name} is facing a severe seasonal allergy deficit.`
-      }
-    ];
-
-    const insights = [
-      'Seasonal fluctuations indicate a potential 15% increase in pediatric asthma cases next week; prepare nebulizer kits.',
-      'Amlodipine stocks are high and healthy, sufficient for the next 45 days.',
-      'Bed Occupancy is currently at 50% across ICU units; general beds are well balanced.',
-      'Doctor attendance rates are strong, though Dr. Priya Sharma is covering extra shifts due to general surgeon leaves.'
-    ];
-
-    return res.json({ shortages, footfall, transfers, insights });
+    const fallbackData = getDeterministicPredictions(db, phcId, activePHC);
+    return res.json(fallbackData);
   }
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await generateContentWithRetry(ai, {
       model: 'gemini-3.5-flash',
       contents: systemContextPrompt,
       config: {
@@ -489,11 +593,22 @@ You MUST respond strictly with a valid JSON object matching this schema structur
       }
     });
 
-    const parsedData = JSON.parse(response.text || '{}');
-    res.json(parsedData);
+    let cleanedText = response.text || '{}';
+    if (cleanedText.includes('```')) {
+      cleanedText = cleanedText.replace(/```json|```/g, '').trim();
+    }
+    const parsedData = JSON.parse(cleanedText);
+    const normalizedData = {
+      shortages: Array.isArray(parsedData.shortages) ? parsedData.shortages : [],
+      footfall: Array.isArray(parsedData.footfall) ? parsedData.footfall : [],
+      transfers: Array.isArray(parsedData.transfers) ? parsedData.transfers : [],
+      insights: Array.isArray(parsedData.insights) ? parsedData.insights : [],
+    };
+    res.json(normalizedData);
   } catch (error) {
-    console.error('Gemini prediction API failed, falling back.', error);
-    res.status(500).json({ error: 'Failed to generate AI predictions' });
+    console.error('Gemini prediction API failed, falling back to deterministic predictions.', error);
+    const fallbackData = getDeterministicPredictions(db, phcId, activePHC);
+    res.json(fallbackData);
   }
 });
 
@@ -521,25 +636,19 @@ Please help answer the user query professionally, accurately, and aligned with s
 
   const ai = getGeminiClient();
   if (!ai) {
-    return res.json({
-      text: `Hello! I am HealthSync AI, running in diagnostic mode because the GEMINI_API_KEY environment variable is not set. 
-
-Based on the local database for **${activePHC.name}**, here is an instant update:
-- **Low Stock alert**: We have critical stock levels for medicines. You should look into procuring more capsules of antibiotics.
-- **Beds**: We currently have ${activeBeds.filter(b => b.status === 'Available').length} vacant beds ready for admission.
-- **Doctors**: Dr. Aarav Mehta and Dr. Priya Sharma are presently active in general outpatient rooms.
-
-How can I assist you with clinical guidelines, inventory reordering, or booking shifts today?`
-    });
+    const text = getDeterministicChatResponse(message, activePHC, activeMeds, activeBeds, activeDocs);
+    return res.json({ text });
   }
 
   try {
-    const formattedContents = [
-      { role: 'user', parts: [{ text: contextPrompt }] }
-    ];
+    const formattedContents: any[] = [];
 
     if (history && Array.isArray(history)) {
       history.forEach((h: any) => {
+        // Skip initial greeting model message to start conversation with a user turn
+        if (h.role === 'model' && formattedContents.length === 0) {
+          return;
+        }
         formattedContents.push({
           role: h.role === 'user' ? 'user' : 'model',
           parts: [{ text: h.text }]
@@ -552,15 +661,19 @@ How can I assist you with clinical guidelines, inventory reordering, or booking 
       parts: [{ text: message }]
     });
 
-    const response = await ai.models.generateContent({
+    const response = await generateContentWithRetry(ai, {
       model: 'gemini-3.5-flash',
       contents: formattedContents,
+      config: {
+        systemInstruction: contextPrompt,
+      }
     });
 
     res.json({ text: response.text });
   } catch (error) {
-    console.error('Gemini Chat API failed.', error);
-    res.status(500).json({ error: 'AI Assistant failed to generate response.' });
+    console.error('Gemini Chat API failed, falling back to smart diagnostic chat.', error);
+    const text = getDeterministicChatResponse(message, activePHC, activeMeds, activeBeds, activeDocs);
+    res.json({ text });
   }
 });
 

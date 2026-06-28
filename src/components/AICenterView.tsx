@@ -281,7 +281,7 @@ export default function AICenterView({ phcId, phcs, medicines, onRefreshData, la
                   <ShieldAlert className="w-3.5 h-3.5 text-rose-500" /> Predicted Medicine Shortages (Next 30 Days)
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5" id="shortages-cards">
-                  {predictions.shortages.map((item, index) => (
+                  {(predictions?.shortages || []).map((item, index) => (
                     <div key={index} className="border border-slate-200 rounded-lg p-3 space-y-2 bg-slate-50/20 flex flex-col justify-between" id={`shortage-card-${index}`}>
                       <div className="space-y-0.5">
                         <div className="flex justify-between items-start">
@@ -305,7 +305,7 @@ export default function AICenterView({ phcId, phcs, medicines, onRefreshData, la
                       </p>
                     </div>
                   ))}
-                  {predictions.shortages.length === 0 && (
+                  {(predictions?.shortages || []).length === 0 && (
                     <p className="text-[11px] text-slate-400 col-span-3">No immediate medicine stockouts predicted. Stock is safe.</p>
                   )}
                 </div>
@@ -320,7 +320,7 @@ export default function AICenterView({ phcId, phcs, medicines, onRefreshData, la
                   {/* Chart */}
                   <div className="lg:col-span-2 h-64" id="footfall-chart-container">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={predictions.footfall} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <LineChart data={predictions?.footfall || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                         <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
@@ -332,7 +332,7 @@ export default function AICenterView({ phcId, phcs, medicines, onRefreshData, la
                   </div>
                   {/* Explanations */}
                   <div className="lg:col-span-1 space-y-2 max-h-64 overflow-y-auto pr-1" id="footfall-trends-list">
-                    {predictions.footfall.map((day, idx) => (
+                    {(predictions?.footfall || []).map((day, idx) => (
                       <div key={idx} className="bg-slate-50 border border-slate-200 p-2 rounded-lg flex items-start gap-2" id={`footfall-item-${idx}`}>
                         <div className={`p-1 rounded text-white mt-0.5 ${
                           day.trend === 'Rising' ? 'bg-rose-500' : day.trend === 'Falling' ? 'bg-emerald-500' : 'bg-slate-500'
@@ -366,7 +366,7 @@ export default function AICenterView({ phcId, phcs, medicines, onRefreshData, la
                 </div>
 
                 <div className="space-y-2" id="transfers-list">
-                  {predictions.transfers.map((trans, idx) => (
+                  {(predictions?.transfers || []).map((trans, idx) => (
                     <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-50 border border-slate-200 p-3 rounded-lg gap-3" id={`transfer-item-${idx}`}>
                       <div className="flex items-center gap-2.5 flex-1 min-w-0">
                         <div className="bg-teal-100/60 text-teal-700 p-2 rounded-lg shadow-none">
@@ -393,7 +393,7 @@ export default function AICenterView({ phcId, phcs, medicines, onRefreshData, la
                       </button>
                     </div>
                   ))}
-                  {predictions.transfers.length === 0 && (
+                  {(predictions?.transfers || []).length === 0 && (
                     <p className="text-[11px] text-slate-400">No resource transfers required at present. Stocks are optimized.</p>
                   )}
                 </div>
@@ -405,7 +405,7 @@ export default function AICenterView({ phcId, phcs, medicines, onRefreshData, la
                   <Sparkles className="w-3.5 h-3.5 text-teal-400 animate-pulse" /> Strategic Healthcare Insights
                 </h3>
                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-[11px] text-slate-300 font-sans list-inside leading-relaxed" id="insights-list">
-                  {predictions.insights.map((ins, idx) => (
+                  {(predictions?.insights || []).map((ins, idx) => (
                     <li key={idx} className="bg-slate-950/30 border border-slate-800 p-2.5 rounded-md flex items-start gap-2 relative before:absolute before:left-0 before:top-3 before:w-0.5 before:h-4 before:bg-teal-500" id={`insight-item-${idx}`}>
                       <span className="flex-1 text-slate-300 pl-1">{ins}</span>
                     </li>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Activity, Languages, Building2 } from 'lucide-react';
 import { PHCCenter, User } from '../types';
 import { i18n, Language } from '../utils/i18n';
@@ -11,10 +11,16 @@ interface LoginViewProps {
 }
 
 export default function LoginView({ phcs, onLogin, lang, setLang }: LoginViewProps) {
-  const [selectedPhc, setSelectedPhc] = useState(phcs[0]?.id || 'phc_1');
+  const [selectedPhc, setSelectedPhc] = useState('phc_1');
   const [role, setRole] = useState<'Admin' | 'Doctor' | 'InventoryManager'>('Admin');
   const [username, setUsername] = useState('admin_demo');
   const [password, setPassword] = useState('••••••••');
+
+  useEffect(() => {
+    if (phcs.length > 0) {
+      setSelectedPhc(phcs[0].id);
+    }
+  }, [phcs]);
 
   const t = i18n[lang];
 

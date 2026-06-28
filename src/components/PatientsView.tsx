@@ -14,8 +14,11 @@ interface PatientsViewProps {
 
 export default function PatientsView({ patients, doctors, onRegisterPatient, onAddDiagnosis, onBookAppointment, lang }: PatientsViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [isRegistering, setIsRegistering] = useState(false);
+
+  // Derive the active selected patient from the current list
+  const selectedPatient = patients.find(p => p.id === selectedPatientId) || null;
   const [isBooking, setIsBooking] = useState<string | null>(null); // patientId
 
   // Forms states
@@ -55,9 +58,7 @@ export default function PatientsView({ patients, doctors, onRegisterPatient, onA
     if (diagForm.diagnosis && diagForm.treatment && diagForm.doctorName) {
       onAddDiagnosis(patientId, diagForm.diagnosis, diagForm.treatment, diagForm.doctorName);
       setDiagForm({ diagnosis: '', treatment: '', doctorName: '' });
-      // Update the selected patient to display the newly added diagnosis
-      const updated = patients.find(p => p.id === patientId);
-      if (updated) setSelectedPatient(updated);
+      setSelectedPatientId(patientId);
     }
   };
 
@@ -108,7 +109,7 @@ export default function PatientsView({ patients, doctors, onRegisterPatient, onA
             {filteredPatients.map(p => (
               <button
                 key={p.id}
-                onClick={() => setSelectedPatient(p)}
+                onClick={() => setSelectedPatientId(p.id)}
                 className={`w-full flex items-center justify-between p-2 rounded-lg border text-left transition-all cursor-pointer ${
                   selectedPatient?.id === p.id
                     ? 'bg-teal-50/50 border-teal-200 shadow-sm shadow-teal-500/5'
